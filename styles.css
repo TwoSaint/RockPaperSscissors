@@ -1,0 +1,55 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #000000;
+}
+
+#ballContainer {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.item {
+    position: absolute;
+    width: 50px;  /* Adjust size according to your image dimensions */
+    height: 50px;
+    background-size: cover;  /* Ensures the image covers the entire div */
+    background-repeat: no-repeat;  /* Avoids repeating the image */
+    border-radius: 50%;  /* Optional: can remove if the image is not round */
+}
+
+
+#beginButton {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    padding: 10px 20px;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 1000; /* Ensure it's on top */
+    background-color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    
+    color: #000000;
+}
+#beginButton:hover {
+    background: linear-gradient(to right, #479dff, #d56bff);
+    color: #fff;
+    transform: scale(1.1); /* Add a slight scale effect */
+  }
+.scissors {
+    background-image: url('images/scissors.png');
+}
+
+.rock {
+    background-image: url('images/rock.png');
+}
+
+.paper {
+    background-image: url('images/paper.png');
+}
