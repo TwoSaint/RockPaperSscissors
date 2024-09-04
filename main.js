@@ -109,7 +109,7 @@ function handleCollision(item1, item2) {
 }
 
 // Create each team
-for (let i = 0; i < 15; i++) {
+for (let i = 0; i < 33; i++) {
     createTeam('scissors');
     createTeam('rock');
     createTeam('paper');
