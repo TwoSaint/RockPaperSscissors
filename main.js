@@ -3,7 +3,18 @@ let itemCount = 0;
 let speedMultiplier = 1;
 let items = []; // To keep track of all items for collision detection
 let collisionEnabled = false; // To control when collisions are enabled
+let randomnessValue = 40;
+let speedValue = 5
 
+// Update the randomnessValue based on slider input
+const randomnessSlider = document.getElementById('randomnessSlider');
+randomnessSlider.addEventListener('input', () => {
+    randomnessValue = parseInt(randomnessSlider.value, 10);
+});
+const speedSlider = document.getElementById('speedSlider');
+speedSlider.addEventListener('input', () => {
+    speedValue = parseInt(speedSlider.value, 10);
+});
 // Function to create and animate bouncing
 function createTeam(teamClass) {
     itemCount += 1;
@@ -23,9 +34,10 @@ function createTeam(teamClass) {
     let updateCount = 0; // Unique to each item
 
     function update() {
-        if (updateCount % 60 === 0) {
-            velX = (Math.random() - 0.5) * 5;
-            velY = (Math.random() - 0.5) * 5;
+        
+        if (updateCount % randomnessValue === 0) {
+            velX = (Math.random() - 0.5) * speedValue;
+            velY = (Math.random() - 0.5) * speedValue;
         }
         updateCount++;
 
@@ -96,15 +108,15 @@ function handleCollision(item1, item2) {
     }
 }
 
-// Create 10 for each team
-for (let i = 0; i < 10; i++) {
+// Create each team
+for (let i = 0; i < 33; i++) {
     createTeam('scissors');
     createTeam('rock');
     createTeam('paper');
 }
 
-// Enable collisions when the "Begin" button is clicked
-document.getElementById('beginButton').addEventListener('click', function() {
+// Enable collisions when the "fight" button is clicked
+document.getElementById('fightButton').addEventListener('click', function() {
     collisionEnabled = true;
     this.style.display = 'none'; // Hide the button after clicking
 });
