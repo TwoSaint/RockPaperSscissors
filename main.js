@@ -28,8 +28,8 @@ function createTeam(teamClass) {
     let posX = Math.random() * (window.innerWidth - 2 * margin) + margin;
     let posY = Math.random() * (window.innerHeight - 2 * margin) + margin;
 
-    let velX = (Math.random() - 0.5) * 5;
-    let velY = (Math.random() - 0.5) * 5;
+    let velX = (Math.random() - 0.5) * speedValue;
+    let velY = (Math.random() - 0.5) * speedValue;
 
     let updateCount = 0; // Unique to each item
 
