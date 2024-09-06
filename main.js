@@ -32,7 +32,7 @@ function createTeam(teamClass) {
     let velY = (Math.random() - 0.5) * speedValue;
 
     let updateCount = 0; // Unique to each item
-
+    const randomDelay = Math.random() * 500; 
     function update() {
         
         if (updateCount % randomnessValue === 0) {
@@ -73,7 +73,7 @@ function createTeam(teamClass) {
 
         requestAnimationFrame(update);
     }
-
+    setTimeout(update, randomDelay);
     update();
     items.push(item); // Add this item to the list of items
 }
