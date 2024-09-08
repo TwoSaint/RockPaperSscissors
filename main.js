@@ -4,21 +4,30 @@ let speedMultiplier = 1;
 let items = []; // To keep track of all items for collision detection
 let collisionEnabled = false; // To control when collisions are enabled
 let randomnessValue = 40;
-let speedValue = 3.7
+let speedValue = 2.5;
+document.getElementById('teamCount').innerHTML = 10;
+// Variable to control auto restart
+let autoRestartEnabled = false;
 
 // Update the randomnessValue based on slider input
 const randomnessSlider = document.getElementById('randomnessSlider');
 randomnessSlider.addEventListener('input', () => {
     randomnessValue = parseInt(randomnessSlider.value, 10);
 });
+
 const speedSlider = document.getElementById('speedSlider');
 speedSlider.addEventListener('input', () => {
     speedValue = parseInt(speedSlider.value, 10);
 });
-// Function to create and animate bouncing
-function createTeam(teamClass) {
-    itemCount += 1;
 
+// Add event listener for the checkbox
+const autoCheckbox = document.getElementById('auto');
+autoCheckbox.addEventListener('change', function() {
+    autoRestartEnabled = this.checked; // Update the variable based on checkbox state
+});
+
+// Function to create and animate bouncing items
+function createTeam(teamClass) {
     const gameContainer = document.getElementById('gameContainer');
     const item = document.createElement('div');
     item.className = `item ${teamClass}`;
@@ -32,9 +41,9 @@ function createTeam(teamClass) {
     let velY = (Math.random() - 0.5) * speedValue;
 
     let updateCount = 0; // Unique to each item
-    const randomDelay = Math.random() * 500; 
+    const randomDelay = Math.random() * 500;
+
     function update() {
-        
         if (updateCount % randomnessValue === 0) {
             velX = (Math.random() - 0.5) * speedValue;
             velY = (Math.random() - 0.5) * speedValue;
@@ -54,15 +63,23 @@ function createTeam(teamClass) {
         posX += velX * speedMultiplier;
         posY += velY * speedMultiplier;
 
+        // Only check collisions when collision detection is enabled
         if (collisionEnabled) {
-            // Check for collisions with other items only if enabled
             for (let other of items) {
-                if (other === item) continue; // Skip checking collision with itself
+                if (other === item || !other.isConnected) continue; // Skip itself or removed items
 
                 let otherPosX = parseFloat(other.style.left);
                 let otherPosY = parseFloat(other.style.top);
 
-                if (Math.abs(posX - otherPosX) < 50 && Math.abs(posY - otherPosY) < 50) {
+                // Use more precise distance-based collision detection
+                let dx = posX - otherPosX;
+                let dy = posY - otherPosY;
+                let distance = Math.sqrt(dx * dx + dy * dy);
+
+                let itemRadius = item.clientWidth / 2;
+                let otherRadius = other.clientWidth / 2;
+
+                if (distance < itemRadius + otherRadius) {
                     handleCollision(item, other);
                 }
             }
@@ -71,14 +88,41 @@ function createTeam(teamClass) {
         item.style.left = `${posX}px`;
         item.style.top = `${posY}px`;
 
-        requestAnimationFrame(update);
+        if (item.isConnected) { // Only keep updating if item is still in the DOM
+            requestAnimationFrame(update);
+        }
     }
+
     setTimeout(update, randomDelay);
     update();
     items.push(item); // Add this item to the list of items
 }
 
-// Function to handle the collision and determine the winner
+// Function to check if all items are the same
+function checkForSameItems() {
+    const firstClass = items[0]?.classList[1]; // Get the class of the first item
+    return items.every(item => item.classList[1] === firstClass); // Check if all items have the same class
+}
+
+// Function to restart the game
+function restartGame() {
+    collisionEnabled = false; // Disable collisions
+
+    // Wait 3 seconds before removing all current items
+    setTimeout(() => {
+        items.forEach(item => item.remove());
+        items = []; // Clear the items array
+
+        // Start a new round
+        const itemCountValue = parseInt(countSlider.value, 10);
+        adjustItemsForTeam('scissors', itemCountValue);
+        adjustItemsForTeam('rock', itemCountValue);
+        adjustItemsForTeam('paper', itemCountValue);
+        collisionEnabled = true; // Re-enable collisions
+    }, 3000); // 3 seconds delay
+}
+
+// Modify the collision handling to check for auto restart
 function handleCollision(item1, item2) {
     const team1 = item1.classList[1]; // Get the team class of item1
     const team2 = item2.classList[1]; // Get the team class of item2
@@ -101,22 +145,66 @@ function handleCollision(item1, item2) {
     }
 
     if (winner) {
-        // Convert the loser to the winner's team
         const loser = winner === item1 ? item2 : item1;
-        loser.className = `item ${winner.classList[1]}`;
-        loser.style.backgroundImage = winner.style.backgroundImage;
+        loser.className = `item ${winner.classList[1]}`; // Change team of loser
+        loser.style.backgroundImage = winner.style.backgroundImage; // Update appearance
+    }
+
+    // Check if all items are the same and restart if auto restart is enabled
+    if (autoRestartEnabled && checkForSameItems()) {
+        restartGame();
     }
 }
 
-// Create each team
-for (let i = 0; i < 33; i++) {
-    createTeam('scissors');
-    createTeam('rock');
-    createTeam('paper');
+// Function to update item count based on the slider
+const countSlider = document.getElementById('countSlider');
+countSlider.addEventListener('input', () => {
+    const itemCount = parseInt(countSlider.value, 10);
+    adjustItemsForTeam('scissors', itemCount);
+    adjustItemsForTeam('rock', itemCount);
+    adjustItemsForTeam('paper', itemCount);
+    document.getElementById('teamCount').innerHTML = itemCount;
+});
+
+// Function to adjust items for each team
+function adjustItemsForTeam(teamClass, desiredCount) {
+    const currentItems = items.filter(item => item.classList.contains(teamClass));
+
+    if (currentItems.length < desiredCount) {
+        // Add more items if needed
+        for (let i = currentItems.length; i < desiredCount; i++) {
+            createTeam(teamClass);
+        }
+    } else if (currentItems.length > desiredCount) {
+        // Remove extra items if needed
+        for (let i = 0; i < currentItems.length - desiredCount; i++) {
+            const itemToRemove = currentItems[i];
+            itemToRemove.remove(); // Remove from DOM
+            items = items.filter(item => item !== itemToRemove); // Remove from array
+        }
+    }
 }
 
-// Enable collisions when the "fight" button is clicked
+// Initial population of items
+const initialItemCount = parseInt(countSlider.value, 10);
+adjustItemsForTeam('scissors', initialItemCount);
+adjustItemsForTeam('rock', initialItemCount);
+adjustItemsForTeam('paper', initialItemCount);
+
+// Enable collisions and hide the slider when the "fight" button is clicked
 document.getElementById('fightButton').addEventListener('click', function() {
+    if(autoCheckbox.checked) {
+        speedSlider.disabled = true;
+        speedSlider.style.display = 'none'; // Optionally hide it as well
+        randomnessSlider.disabled = true;
+        randomnessSlider.style.display = 'none'; // Optionally hide it as well
+        document.getElementById('teamCount').innerHTML = "";
+    }
     collisionEnabled = true;
     this.style.display = 'none'; // Hide the button after clicking
+    const countSlider = document.getElementById('countSlider');
+    countSlider.disabled = true;
+    countSlider.style.display = 'none'; // Optionally hide it as well
+    autoCheckbox.disabled = true;
+    autoCheckbox.style.display = 'none'; // Optionally hide it as well
 });
