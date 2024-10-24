@@ -4,7 +4,7 @@ let speedMultiplier = 1;
 let items = []; // To keep track of all items for collision detection
 let collisionEnabled = false; // To control when collisions are enabled
 let randomnessValue = 40;
-let speedValue = 2.5;
+let speedValue = 2.5; // might want to increase initial speed for less lag
 document.getElementById('teamCount').innerHTML = 10;
 // Variable to control auto restart
 let autoRestartEnabled = false;
@@ -37,8 +37,8 @@ function createTeam(teamClass) {
     let posX = Math.random() * (window.innerWidth - 2 * margin) + margin;
     let posY = Math.random() * (window.innerHeight - 2 * margin) + margin;
 
-    let velX = (Math.random() - 0.5) * speedValue;
-    let velY = (Math.random() - 0.5) * speedValue;
+    let velX = (Math.random() - 0.5) * speedValue; // Maybe decrease initial speed value to reduce lag
+    let velY = (Math.random() - 0.5) * speedValue; 
 
     let updateCount = 0; // Unique to each item
     const randomDelay = Math.random() * 500;
